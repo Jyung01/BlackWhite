@@ -147,8 +147,8 @@ public class clientGUI extends JFrame {
 		epointp.setLayout(new GridLayout(2, 1));
 		epointp.setBounds(100, 50, 80, 100);
 		epointp.setBackground(color = new Color(87, 16, 20));
-		epointL = new JLabel("점수");
-		epointL.setFont(new Font("맑은 고딕", Font.BOLD, 20));
+		epointL = new JLabel("상대 점수");
+		epointL.setFont(new Font("맑은 고딕", Font.BOLD, 15));
 		epointL.setForeground(Color.ORANGE);
 		epointL.setHorizontalAlignment(JLabel.CENTER);
 		epointF = new JTextField();
@@ -308,18 +308,19 @@ public class clientGUI extends JFrame {
 			
 			String msg;
 			
+			resF.setText("1 라운드를 시작합니다");
+			progF.setText("상대방의 턴");
 			writer.println("00");
 			writer.flush();
 			
 			while ((msg = br.readLine()) != null) {
-				if (msg.startsWith("02")) {
+				if (msg.equals("02")) {
 					progF.setText("나의 턴");
 					myTurn = true;
 				} else if (msg.startsWith("06")) {
 					e_num = Integer.parseInt(msg.substring(msg.length()-1));
-					System.out.println(e_num);
+					//System.out.println(e_num);
 				}
-				
 			}
 		} catch (UnknownHostException e) {
 			// TODO Auto-generated catch block
@@ -342,39 +343,39 @@ public class clientGUI extends JFrame {
 		
 		if (my_num > e_num) {
 			//resF.setText("당신이 승리하였습니다.");
+			writer.println("03");
+			writer.println("01");
+			writer.flush();
 			JOptionPane.showMessageDialog(null, "당신이 승리하였습니다.", "Client 결과",
 					JOptionPane.INFORMATION_MESSAGE);
 			mypoint++;
 			rnd++;
 			mypointF.setText(Integer.toString(mypoint));
 			rndF.setText(Integer.toString(rnd));
-			writer.println("03");
-			writer.println("01");
-			writer.flush();
 			progF.setText("상대방의 턴");
 			resF.setText(rnd +" 라운드를 시작합니다.");
 		} else if (my_num == e_num) {
 			//resF.setText("비겼습니다.");
+			writer.println("04");
+			writer.println("01");
+			writer.flush();
 			JOptionPane.showMessageDialog(null, "비겼습니다.", "Client 결과",
 					JOptionPane.INFORMATION_MESSAGE);
 			rnd++;
 			rndF.setText(Integer.toString(rnd));
-			writer.println("04");
-			writer.println("01");
-			writer.flush();
 			progF.setText("상대방의 턴");
 			resF.setText(rnd +" 라운드를 시작합니다.");
 		} else if (my_num < e_num) {
 			//resF.setText("당신이 패배하였습니다.");
+			writer.println("05");
+			writer.println("01");
+			writer.flush();
 			JOptionPane.showMessageDialog(null, "당신이 패배하였습니다.", "Client 결과",
 					JOptionPane.INFORMATION_MESSAGE);
 			epoint++;
 			rnd++;
 			epointF.setText(Integer.toString(epoint));
 			rndF.setText(Integer.toString(rnd));
-			writer.println("05");
-			writer.println("01");
-			writer.flush();
 			progF.setText("상대방의 턴");
 			resF.setText(rnd +" 라운드를 시작합니다.");
 		}
@@ -385,21 +386,22 @@ public class clientGUI extends JFrame {
 	}
 	
 	void gameEnd() {
+		writer.println("07");
+		writer.flush();
 		rnd = 9;
 		rndF.setText(Integer.toString(rnd));
 		resF.setText("게임이 종료되었습니다.");
 		progF.setText("");
-		writer.println("07");
-		writer.flush();
+		
 		
 		if (mypoint > epoint) {
-			JOptionPane.showMessageDialog(null, "상대에게 승리하였습니다. 게임이 종료되었습니다.", "게임 결과",
+			JOptionPane.showMessageDialog(null, "당신이 승리하였습니다. ( WIN ) 게임이 종료되었습니다.", "게임 결과 ( Client )",
 					JOptionPane.INFORMATION_MESSAGE);
 		} else if (mypoint == epoint) {
-			JOptionPane.showMessageDialog(null, "상대와 비겼습니다. 게임이 종료되었습니다.", "게임 결과",
+			JOptionPane.showMessageDialog(null, "상대와 비겼습니다. ( DRAW ) 게임이 종료되었습니다.", "게임 결과 ( Client )",
 					JOptionPane.INFORMATION_MESSAGE);
 		} else if (mypoint < epoint) {
-			JOptionPane.showMessageDialog(null, "상대에게 패배하였습니다. 게임이 종료되었습니다.", "게임 결과",
+			JOptionPane.showMessageDialog(null, "당신이 패배하였습니다. ( LOSE ) 게임이 종료되었습니다.", "게임 결과 ( Client )",
 					JOptionPane.INFORMATION_MESSAGE);
 		}
 		

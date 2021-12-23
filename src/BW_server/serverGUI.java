@@ -151,8 +151,8 @@ public class serverGUI extends JFrame {
 		epointp.setLayout(new GridLayout(2, 1));
 		epointp.setBounds(100, 50, 80, 100);
 		epointp.setBackground(color = new Color(87, 16, 20));
-		epointL = new JLabel("점수");
-		epointL.setFont(new Font("맑은 고딕", Font.BOLD, 20));
+		epointL = new JLabel("상대 점수");
+		epointL.setFont(new Font("맑은 고딕", Font.BOLD, 15));
 		epointL.setForeground(Color.ORANGE);
 		epointL.setHorizontalAlignment(JLabel.CENTER);
 		epointF = new JTextField();
@@ -211,6 +211,7 @@ public class serverGUI extends JFrame {
 		resF.setForeground(Color.ORANGE);
 		resF.setHorizontalAlignment(JTextField.CENTER);
 		//resF.setText("ex) Player1 승리");
+		resF.setText("상대 접속 대기중");
 		
 		/* 게임 진행 결과 표시창 */
 		progF = new JTextField();
@@ -317,31 +318,24 @@ public class serverGUI extends JFrame {
 			System.out.println("서버 생성 완료");
 			skt = svskt.accept();
 			System.out.println("Client 연결 완료");
+			resF.setText("1 라운드를 시작합니다");
 			br = new BufferedReader(new InputStreamReader(skt.getInputStream()));
 			writer = new PrintWriter(skt.getOutputStream());
 			
 			String msg;
 			
 			while ((msg = br.readLine()) != null) {
-				if (msg.getBytes().length == 0) 	break;
-				//progF.setText(msg);
 				
-				if (msg.startsWith("01")) {
+				switch (msg) {
+				case "00":
 					progF.setText("나의 턴");
 					myTurn = true;
-				} else if (msg.startsWith("00")) {
+					break;
+				case "01":
 					progF.setText("나의 턴");
 					myTurn = true;
-				} else if (msg.startsWith("05")) {
-					JOptionPane.showMessageDialog(null, "당신이 이겼습니다.", "Server 결과",
-							JOptionPane.INFORMATION_MESSAGE);
-					mypoint++;
-					rnd++;
-					mypointF.setText(Integer.toString(mypoint));
-					rndF.setText(Integer.toString(rnd));
-					progF.setText("나의 턴");
-					resF.setText(rnd +" 라운드를 시작합니다.");
-				} else if (msg.startsWith("03")) {
+					break;
+				case "03":
 					JOptionPane.showMessageDialog(null, "당신이 패배하였습니다.", "Server 결과",
 							JOptionPane.INFORMATION_MESSAGE);
 					epoint++;
@@ -350,7 +344,8 @@ public class serverGUI extends JFrame {
 					rndF.setText(Integer.toString(rnd));
 					progF.setText("나의 턴");
 					resF.setText(rnd +" 라운드를 시작합니다.");
-				} else if (msg.startsWith("04")) {
+					break;
+				case "04":
 					//resF.setText("비겼습니다.");
 					JOptionPane.showMessageDialog(null, "비겼습니다.", "Server 결과",
 														JOptionPane.INFORMATION_MESSAGE);
@@ -358,7 +353,36 @@ public class serverGUI extends JFrame {
 					rndF.setText(Integer.toString(rnd));
 					progF.setText("나의 턴");
 					resF.setText(rnd +" 라운드를 시작합니다.");
-				} else if (msg.startsWith("06")) {
+					break;
+				case "05":
+					JOptionPane.showMessageDialog(null, "당신이 이겼습니다.", "Server 결과",
+							JOptionPane.INFORMATION_MESSAGE);
+					mypoint++;
+					rnd++;
+					mypointF.setText(Integer.toString(mypoint));
+					rndF.setText(Integer.toString(rnd));
+					progF.setText("나의 턴");
+					resF.setText(rnd +" 라운드를 시작합니다.");
+					break;
+				case "07":
+					rnd = 9;
+					rndF.setText(Integer.toString(rnd));
+					resF.setText("게임이 종료되었습니다.");
+					progF.setText("");
+					
+					if (mypoint > epoint) {
+						JOptionPane.showMessageDialog(null, "당신이 승리하였습니다. ( WIN ) 게임이 종료되었습니다.", "게임 결과 ( Server )",
+								JOptionPane.INFORMATION_MESSAGE);
+					} else if (mypoint == epoint) {
+						JOptionPane.showMessageDialog(null, "상대와 비겼습니다. ( DRAW ) 게임이 종료되었습니다.", "게임 결과 ( Server )",
+								JOptionPane.INFORMATION_MESSAGE);
+					} else if (mypoint < epoint) {
+						JOptionPane.showMessageDialog(null, "당신이 패배하였습니다. ( LOSE ) 게임이 종료되었습니다.", "게임 결과 ( Server )",
+								JOptionPane.INFORMATION_MESSAGE);
+					}		
+					System.exit(0);
+					break;
+				default:
 					e_num = Integer.parseInt(msg.substring(msg.length()-1));
 					
 					if (e_num % 2 == 0) {
@@ -368,27 +392,10 @@ public class serverGUI extends JFrame {
 						enemydeck[od].setVisible(false);
 						od = od + 2;
 					}
-					
-				} else if (msg.startsWith("07")) {
-					rnd = 9;
-					rndF.setText(Integer.toString(rnd));
-					resF.setText("게임이 종료되었습니다.");
-					progF.setText("");
-					
-					if (mypoint > epoint) {
-						JOptionPane.showMessageDialog(null, "상대에게 승리하였습니다. 게임이 종료되었습니다.", "게임 결과",
-								JOptionPane.INFORMATION_MESSAGE);
-					} else if (mypoint == epoint) {
-						JOptionPane.showMessageDialog(null, "상대와 비겼습니다. 게임이 종료되었습니다.", "게임 결과",
-								JOptionPane.INFORMATION_MESSAGE);
-					} else if (mypoint < epoint) {
-						JOptionPane.showMessageDialog(null, "상대에게 패배하였습니다. 게임이 종료되었습니다.", "게임 결과",
-								JOptionPane.INFORMATION_MESSAGE);
-					}
-					
-					System.exit(0);
+						
 					
 				}
+				
 				
 			}
 			
